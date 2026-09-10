@@ -303,9 +303,20 @@ code,
   align-items: center;
 }
 
-@media (min-width: 64rem) {
+/* Three columns: the copy spans two, the ring takes one. That 2:1 keeps the
+   headline the dominant element and the ring supporting, rather than the two
+   competing at roughly equal width.
+
+   It engages at 52rem rather than waiting for a full 64rem - below that it
+   stacks, which is correct, since a ring beside a headline at phone width is
+   unreadable. */
+@media (min-width: 52rem) {
   .hero {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 26rem);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .hero__text {
+    grid-column: span 2;
   }
 }
 
@@ -320,8 +331,11 @@ code,
   max-width: 52ch;
 }
 
+/* Sized to fit the two-of-three column it now sits in, not the whole viewport.
+   At 7.2vw each line overran its column between 830 and 1100px and broke mid
+   phrase, which defeats the point of setting it as two deliberate lines. */
 .hero__title {
-  font-size: clamp(2.25rem, 7.2vw, 4.25rem);
+  font-size: clamp(2rem, 5vw, 3.75rem);
   line-height: 1.02;
   max-width: 30ch;
 }

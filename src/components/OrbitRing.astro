@@ -50,7 +50,7 @@ const clients = [
       <div class="orbit__slot" style={`--angle: ${c.angle}deg`}>
         <div class="orbit__chip">
           <div class="orbit__mark">
-            <svg viewBox="0 0 24 24" width="22" height="22">
+            <svg viewBox="0 0 24 24">
               <title>{c.name}</title>
               <path d={c.d} fill="currentColor" />
             </svg>
@@ -61,7 +61,7 @@ const clients = [
   </div>
 
   <div class="orbit__core">
-    <svg viewBox="0 0 32 32" width="42" height="42">
+    <svg viewBox="0 0 32 32" class="orbit__logo">
       <rect width="32" height="32" rx="7" fill="var(--accent)" />
       <path d="M9 16.8l4.1 4.1L23 11" fill="none" stroke="var(--paper-raised)"
             stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
@@ -72,7 +72,7 @@ const clients = [
 
 <style>
   .orbit {
-    --chip: 3.25rem;
+    --chip: 13%;
     --dur: 72s;
     position: relative;
     width: 100%;
@@ -127,8 +127,15 @@ const clients = [
   .orbit__mark {
     display: grid;
     place-items: center;
+    width: 46%;
     color: var(--ink);
     animation: orbit-counterspin var(--dur) linear infinite;
+  }
+
+  .orbit__mark svg {
+    display: block;
+    width: 100%;
+    height: auto;
   }
 
   /* Sized against the orbit radius so the middle does not read as dead space.
@@ -153,9 +160,15 @@ const clients = [
     border-radius: 50%;
   }
 
+  .orbit__logo {
+    display: block;
+    width: clamp(1.75rem, 3.2vw, 2.625rem);
+    height: auto;
+  }
+
   .orbit__core span {
     font-family: var(--font-display);
-    font-size: 1.1875rem;
+    font-size: clamp(0.9375rem, 1.4vw, 1.1875rem);
     font-weight: 600;
     letter-spacing: -0.02em;
     color: var(--ink);
