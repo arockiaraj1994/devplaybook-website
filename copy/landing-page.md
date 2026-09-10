@@ -10,7 +10,7 @@ landing page outline.
 
 ### Headline
 
-**Writing code got cheap. Writing good code didn't.**
+**Writing code got cheap. Writing good code didn't. More code is the expensive part.**
 
 ### Subhead
 

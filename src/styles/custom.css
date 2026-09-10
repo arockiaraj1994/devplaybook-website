@@ -36,6 +36,7 @@
   --accent-wash: #221d3d;
   --clay: #e8836f;
   --clay-wash: #2e1d1c;
+  --blue: #6ea8ff;
 }
 
 :root[data-theme='light'] {
@@ -51,6 +52,7 @@
   --accent-wash: #f0edfb;
   --clay: #a93b2e;
   --clay-wash: #fbf0ee;
+  --blue: #2563eb;
 }
 
 /* --------------------------------------------------- Starlight mapping */
@@ -158,6 +160,32 @@ body {
 
 .band--flush {
   border-top: 0;
+}
+
+/* The animated three-flow band: the one full-bleed section on the site. Its
+   own background sets it apart, so it carries no .band hairline. Content stays
+   in an inner .shell; the lanes scroll sideways below their min-width, reusing
+   the site's overflow idiom (see .tools__scroll). */
+.codeflow {
+  background: var(--paper-sunken);
+  padding-block: clamp(2.25rem, 5vw, 4rem);
+}
+
+.codeflow__inner > * + * {
+  margin-top: 1.25rem;
+}
+
+.codeflow__scroll {
+  overflow-x: auto;
+}
+
+/* The vertical padding contains what overflows each lane — the settle transform
+   at the top, and the last lane's BIN at the bottom — so nothing spills past the
+   lanes box. That keeps overflow-x:auto from surfacing a stray vertical
+   scrollbar, and keeps the bottom BIN fully visible. */
+.codeflow__lanes {
+  min-width: 52rem;
+  padding-block: 0.5rem 1.75rem;
 }
 
 /* The spine: a narrow column for the section's name, a wide one for content.
@@ -300,32 +328,17 @@ code,
 
 /* ---------------------------------------------------------------- hero */
 
+/* The hero is copy-only now: a single full-width column, kept compact so the
+   animation below rides up near the top. */
 .hero {
-  padding-block: clamp(3rem, 9vw, 6rem) clamp(2.5rem, 6vw, 4rem);
+  padding-block: clamp(1.75rem, 5vw, 3.25rem) clamp(1.5rem, 4vw, 2.5rem);
   display: grid;
   gap: clamp(2.5rem, 6vw, 4rem);
   align-items: center;
 }
 
-/* Three columns: the copy spans two, the ring takes one. That 2:1 keeps the
-   headline the dominant element and the ring supporting, rather than the two
-   competing at roughly equal width.
-
-   It engages at 52rem rather than waiting for a full 64rem - below that it
-   stacks, which is correct, since a ring beside a headline at phone width is
-   unreadable. */
-@media (min-width: 52rem) {
-  .hero {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .hero__text {
-    grid-column: span 2;
-  }
-}
-
 .hero__text > * + * {
-  margin-top: 1.5rem;
+  margin-top: 1.25rem;
 }
 
 .hero__clients {
@@ -335,9 +348,8 @@ code,
   max-width: 52ch;
 }
 
-/* Sized to fit the two-of-three column it now sits in, not the whole viewport.
-   At 7.2vw each line overran its column between 830 and 1100px and broke mid
-   phrase, which defeats the point of setting it as two deliberate lines. */
+/* Copy spans the full column now, so the headline keeps its full size at every
+   width; max-width keeps the measure from running too wide on big screens. */
 .hero__title {
   font-size: clamp(2rem, 5vw, 3.75rem);
   line-height: 1.02;
@@ -353,7 +365,18 @@ code,
 @media (min-width: 34rem) {
   .hero__title span {
     display: block;
+    /* Each span is a deliberate line; never let one wrap mid-phrase. The font
+       clamp below keeps the longest line ("More code is the expensive part.")
+       inside its column. */
+    white-space: nowrap;
   }
+}
+
+/* All three lines read the same: same base ink, same weight. Only the keyword
+   in each line is picked out in blue. */
+.hero__title .hl {
+  color: var(--blue);
+  font-weight: inherit;
 }
 
 .hero__sub {

@@ -1,0 +1,642 @@
+---
+/*
+ * Three flows of the same task, stacked and animated, to *show* what the hero
+ * says: "More code is the expensive part."
+ *
+ *   1. You -> AI writes -> Project.            No review; everything ships; pile climbs fast.
+ *   2. You -> AI writes -> AI reviews -> Bin.  Some is binned; the rest still lands.
+ *   3. You + dev-playbook -> writes less ...    Fewer written, little binned; pile grows slowly.
+ *
+ * The punchline is the three Project piles ending at three visibly different
+ * heights (ship counts 9 / 5 / 3). Motion is pure CSS keyframes in the scoped
+ * block below, matching OrbitRing: transform + opacity only, paused on hover,
+ * a static filled end-state under prefers-reduced-motion. The animated stage is
+ * aria-hidden; the per-lane captions carry the meaning for assistive tech.
+ *
+ * The travelling tokens are language marks (simple-icons, CC0-1.0), vendored
+ * into src/assets/icons like the OrbitRing glyphs. Java uses the OpenJDK mark
+ * and C# the .NET mark — the only monochrome marks simple-icons carries for
+ * those. They inherit currentColor (the lane's tone), not brand hexes: at this
+ * size real brand colours read as a smudge, the same call OrbitRing makes.
+ */
+import javaSvg from '../assets/icons/java.svg?raw';
+import pythonSvg from '../assets/icons/python.svg?raw';
+import csharpSvg from '../assets/icons/csharp.svg?raw';
+import goSvg from '../assets/icons/go.svg?raw';
+import rustSvg from '../assets/icons/rust.svg?raw';
+import tsSvg from '../assets/icons/typescript.svg?raw';
+import jsSvg from '../assets/icons/javascript.svg?raw';
+
+/** Pull the single path out of a simple-icons glyph. */
+const pathOf = (svg: string, name: string) => {
+  const d = svg.match(/<path[^>]*\sd="([^"]+)"/)?.[1];
+  if (!d) throw new Error(`No path found in the ${name} icon`);
+  return d;
+};
+
+const langIcons = [
+  { name: 'Java', d: pathOf(javaSvg, 'Java') },
+  { name: 'Python', d: pathOf(pythonSvg, 'Python') },
+  { name: 'C#', d: pathOf(csharpSvg, 'C#') },
+  { name: 'Go', d: pathOf(goSvg, 'Go') },
+  { name: 'Rust', d: pathOf(rustSvg, 'Rust') },
+  { name: 'TypeScript', d: pathOf(tsSvg, 'TypeScript') },
+  { name: 'JavaScript', d: pathOf(jsSvg, 'JavaScript') },
+];
+
+type Lane = {
+  key: string;
+  actor: string;
+  /** the setup, labelled under the actor */
+  scenario: string;
+  prompt: string;
+  /** dev-playbook lane: the instruction reaches the agent carrying rules. */
+  rules?: boolean;
+  writes: number;
+  bins: number;
+  review: boolean;
+  tone: 'clay' | 'ink' | 'accent';
+  /** the outcome, labelled under the Project pile */
+  verdict: string;
+  /** the "so what", written out to the right of the lane */
+  writeup: string;
+};
+
+const lanes: Lane[] = [
+  {
+    key: 'raw',
+    actor: 'You',
+    scenario: 'No standards',
+    prompt: 'prompt',
+    writes: 9,
+    bins: 0,
+    review: false,
+    tone: 'clay',
+    verdict: 'climbs fast',
+    writeup: 'No guardrails. Every line ships, and every line is now yours to debug, review and maintain.',
+  },
+  {
+    key: 'rev',
+    actor: 'You',
+    scenario: 'With review',
+    prompt: 'prompt',
+    writes: 8,
+    bins: 3,
+    review: true,
+    tone: 'ink',
+    verdict: 'still piling',
+    writeup: 'Review helps, but volume still wins. The pile keeps growing, and so does its upkeep.',
+  },
+  {
+    key: 'dp',
+    actor: 'You',
+    scenario: 'With dev-playbook',
+    prompt: 'prompt',
+    rules: true,
+    writes: 4,
+    bins: 1,
+    review: true,
+    tone: 'accent',
+    verdict: 'stays small',
+    writeup: 'Rules first, so it writes only what is needed. Less to review, less to own.',
+  },
+];
+
+/** Spread `bins` diversions evenly across the `writes` emitted this cycle. */
+const streamOf = (writes: number, bins: number) => {
+  const out: { i: number; kind: 'ship' | 'bin' }[] = [];
+  let acc = 0;
+  let placed = 0;
+  for (let i = 0; i < writes; i++) {
+    acc += bins / writes;
+    if (acc >= 1 && placed < bins) {
+      acc -= 1;
+      placed += 1;
+      out.push({ i, kind: 'bin' });
+    } else {
+      out.push({ i, kind: 'ship' });
+    }
+  }
+  return out;
+};
+
+const view = lanes.map((l) => ({
+  ...l,
+  ship: l.writes - l.bins,
+  stream: streamOf(l.writes, l.bins),
+}));
+---
+
+<div class="cf">
+  {
+    view.map((l) => (
+      <div class={`cf__lane cf--${l.tone}`}>
+        <div class="cf__stage" aria-hidden="true" style={`--writes:${l.writes}`}>
+          {/* actor */}
+          <div class="cf__actor">
+            <svg class="cf__glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="7.5" r="3.4" />
+              <path d="M4.5 20c0-4.1 3.4-7 7.5-7s7.5 2.9 7.5 7" />
+            </svg>
+            <span class="cf__name">{l.actor}</span>
+            <span class="cf__scenario">{l.scenario}</span>
+          </div>
+
+          {/* instruction: the prompt floats from you to the agent; the
+              dev-playbook lane carries the rules along with it */}
+          <div class="cf__instr">
+            <span class="cf__wire cf__wire--mini" />
+            <div class="cf__promptwrap">
+              <span class="cf__prompt">{l.prompt}</span>
+              {l.rules && <span class="cf__prompt cf__prompt--rules">+&nbsp;rules</span>}
+            </div>
+          </div>
+
+          {/* AI writes */}
+          <div class="cf__node">
+            <svg class="cf__glyph cf__glyph--ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="4" y="6" width="16" height="13" rx="3" />
+              <circle cx="9.5" cy="12.6" r="1.35" fill="currentColor" stroke="none" />
+              <circle cx="14.5" cy="12.6" r="1.35" fill="currentColor" stroke="none" />
+              <path d="M12 6V3.4" />
+              <circle cx="12" cy="2.5" r="1" fill="currentColor" stroke="none" />
+            </svg>
+            <span class="cf__tag">writes</span>
+          </div>
+
+          {/* conveyor: chips travel here; review marker + bin overlay it */}
+          <div class="cf__conveyor">
+            <span class="cf__wire" />
+
+              {l.review && (
+                <div class="cf__review">
+                  <svg class="cf__glyph cf__glyph--ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="6" width="16" height="13" rx="3" />
+                    <circle cx="9.5" cy="12.6" r="1.35" fill="currentColor" stroke="none" />
+                    <circle cx="14.5" cy="12.6" r="1.35" fill="currentColor" stroke="none" />
+                  </svg>
+                  <span class="cf__tag">reviews</span>
+                </div>
+              )}
+
+              {l.review && (
+                <div class="cf__bin">
+                  <span>BIN</span>
+                </div>
+              )}
+
+              {l.stream.map((c) => {
+                const icon = langIcons[c.i % langIcons.length];
+                return (
+                  <span class={`cf__chip cf__chip--${c.kind}`} style={`--i:${c.i}`}>
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d={icon.d} fill="currentColor" />
+                    </svg>
+                  </span>
+                );
+              })}
+          </div>
+
+          {/* project: a deck of file-sheets that grows with the code kept */}
+          <div class="cf__project">
+            <div class="cf__stackrow">
+              <div class="cf__stack">
+                {Array.from({ length: l.ship }).map(() => (
+                  <span class="cf__file" />
+                ))}
+              </div>
+              <span class="cf__count">~{l.ship} files</span>
+            </div>
+            <span class="cf__verdict">{l.verdict}</span>
+          </div>
+
+          {/* the "so what", to the right */}
+          <p class="cf__writeup">{l.writeup}</p>
+        </div>
+      </div>
+    ))
+  }
+</div>
+
+<style>
+  .cf {
+    --chip: clamp(10px, 1vw, 13px);
+    --logo: clamp(16px, 1.9vw, 22px);
+    --run: 6.5s;
+    --mid: 42%;
+    --drop: 1.55rem;
+    display: grid;
+    gap: clamp(0.25rem, 1vw, 0.75rem);
+  }
+
+  .cf__lane {
+    display: grid;
+    gap: 0.5rem 0;
+  }
+
+  /* Identical column tracks on every lane, so actor / instruction / AI /
+     conveyor / project / write-up line up vertically across the three rows.
+     The conveyor is capped so writes -> review -> project stay compact, and the
+     write-up takes the slack on the right. */
+  .cf__stage {
+    display: grid;
+    /* the conveyor flexes to take the slack (logos stay spread), while the
+       write-up on the right is capped to ~a quarter of the width. */
+    grid-template-columns: 6.5rem 6.5rem 3rem minmax(9rem, 1fr) auto minmax(11rem, 16rem);
+    align-items: center;
+    gap: clamp(0.4rem, 1vw, 0.85rem);
+  }
+
+  /* ------------------------------------------------------------- actor / nodes */
+  .cf__actor,
+  .cf__node,
+  .cf__review {
+    display: grid;
+    justify-items: center;
+    gap: 0.3rem;
+    text-align: center;
+  }
+
+  .cf__glyph {
+    width: clamp(1.75rem, 3.4vw, 2.4rem);
+    height: auto;
+    color: var(--graphite);
+  }
+
+  .cf__glyph--ai {
+    color: var(--ink);
+  }
+
+  .cf--accent .cf__glyph--ai {
+    color: var(--accent);
+  }
+
+  .cf__name,
+  .cf__tag,
+  .cf__ptitle {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    line-height: 1.2;
+    color: var(--graphite);
+    letter-spacing: -0.01em;
+  }
+
+  .cf__name {
+    max-width: 8rem;
+  }
+
+  /* the setup (under the actor) and the outcome (under the pile) */
+  .cf__scenario,
+  .cf__verdict {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    text-align: center;
+    color: var(--graphite);
+  }
+
+  .cf__verdict {
+    font-weight: 500;
+  }
+
+  /* colour the outcome to the pile it labels; the dev-playbook setup is
+     accented the way its badge used to be. */
+  .cf--clay .cf__verdict {
+    color: var(--clay);
+  }
+
+  .cf--accent .cf__verdict,
+  .cf--accent .cf__scenario {
+    color: var(--accent);
+  }
+
+  /* --------------------------------------------------------- instruction */
+  /* The prompt floats from you to the agent along a short dashed hop. The
+     dev-playbook lane sends the rules along with it. */
+  .cf__instr {
+    position: relative;
+    height: 4.25rem;
+    container-type: inline-size;
+  }
+
+  .cf__promptwrap {
+    position: absolute;
+    top: var(--mid);
+    left: 0;
+    display: grid;
+    gap: 3px;
+    justify-items: center;
+    opacity: 0;
+    animation: cf-instr var(--run) ease-in-out infinite;
+  }
+
+  .cf__prompt {
+    font-family: var(--font-mono);
+    font-size: 0.56rem;
+    line-height: 1.15;
+    white-space: nowrap;
+    color: var(--graphite);
+    background: var(--paper-raised);
+    border: 1px solid var(--hairline);
+    border-radius: 999px;
+    padding: 0.12rem 0.45rem;
+  }
+
+  .cf__prompt--rules {
+    color: var(--accent);
+    background: var(--accent-wash);
+    border-color: var(--accent);
+  }
+
+  @keyframes cf-instr {
+    0% {
+      transform: translate(0, -50%);
+      opacity: 0;
+    }
+    16% {
+      opacity: 1;
+    }
+    74% {
+      opacity: 1;
+    }
+    100% {
+      transform: translate(calc(100cqw - 100%), -50%);
+      opacity: 0;
+    }
+  }
+
+  /* ------------------------------------------------------------- conveyor */
+  .cf__conveyor {
+    position: relative;
+    height: 4.25rem;
+    container-type: inline-size;
+  }
+
+  /* The dashed guide the chips ride, echoing the sketch's connectors. */
+  .cf__wire {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: var(--mid);
+    border-top: 1px dashed var(--hairline);
+  }
+
+  .cf__review {
+    position: absolute;
+    left: 52%;
+    top: var(--mid);
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    background: var(--paper-sunken);
+    padding: 0 0.15rem;
+  }
+
+  .cf__review .cf__glyph {
+    width: clamp(1.4rem, 2.8vw, 1.9rem);
+  }
+
+  .cf__bin {
+    position: absolute;
+    left: 52%;
+    top: calc(var(--mid) + var(--drop) + 0.35rem);
+    transform: translateX(-50%);
+    display: grid;
+    place-items: center;
+    width: 2.1rem;
+    height: 1.5rem;
+    border: 1px solid var(--clay);
+    border-radius: 3px;
+    background: var(--clay-wash);
+  }
+
+  .cf__bin span {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.04em;
+    color: var(--clay);
+  }
+
+  /* ------------------------------------------------------------- chips */
+  .cf__chip {
+    position: absolute;
+    top: var(--mid);
+    left: 0;
+    width: var(--logo);
+    height: var(--logo);
+    display: grid;
+    place-items: center;
+    color: var(--graphite);
+    opacity: 0;
+    z-index: 2;
+    /* the token rides on the dashed wire, so give it a small ground to sit on */
+    background: var(--paper-sunken);
+    /* Negative, evenly-spread delays pre-fill the stream so the loop is seamless
+       from the first frame. */
+    animation-delay: calc(-1 * var(--i) / var(--writes) * var(--run));
+    animation-duration: var(--run);
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+
+  .cf__chip svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .cf__chip--ship {
+    color: var(--graphite);
+    animation-name: cf-ship;
+  }
+
+  .cf--accent .cf__chip--ship {
+    color: var(--accent);
+  }
+
+  .cf__chip--bin {
+    color: var(--clay);
+    animation-name: cf-bin;
+  }
+
+  /* travel the full conveyor width (cqw = 1% of the conveyor), into the project */
+  @keyframes cf-ship {
+    0% {
+      transform: translate(0, -50%) scale(0.82);
+      opacity: 0;
+    }
+    7% {
+      opacity: 1;
+    }
+    88% {
+      opacity: 1;
+    }
+    100% {
+      transform: translate(calc(100cqw - var(--logo)), -50%) scale(0.82);
+      opacity: 0;
+    }
+  }
+
+  /* travel to the review marker (~52cqw), then drop into the bin */
+  @keyframes cf-bin {
+    0% {
+      transform: translate(0, -50%) scale(0.82);
+      opacity: 0;
+    }
+    7% {
+      opacity: 1;
+    }
+    46% {
+      transform: translate(calc(52cqw - var(--logo) / 2), -50%) scale(0.82);
+      opacity: 1;
+    }
+    66% {
+      transform: translate(calc(52cqw - var(--logo) / 2), calc(-50% + var(--drop))) scale(0.7);
+      opacity: 0.85;
+    }
+    80%,
+    100% {
+      transform: translate(calc(52cqw - var(--logo) / 2), calc(-50% + var(--drop))) scale(0.7);
+      opacity: 0;
+    }
+  }
+
+  /* ------------------------------------------------------------- project */
+  .cf__project {
+    display: grid;
+    justify-items: center;
+    gap: 0.35rem;
+  }
+
+  /* a deck of file-sheets, one per kept file, with the count beside it. The
+     taller the deck, the more code the flow kept. */
+  .cf__stackrow {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.45rem;
+  }
+
+  .cf__stack {
+    width: 2.75rem;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 2px;
+    /* the deck rises from the base on a loop; each lane grows at its own pace.
+       clip-path reveals the sheets bottom-up without shifting the layout, so the
+       count and label beside it stay put. */
+    --grow: 4s;
+    animation: cf-grow var(--grow) ease-out infinite;
+  }
+
+  /* very fast / fast / slow — the whole point of the three lanes */
+  .cf--clay .cf__stack {
+    --grow: 2.4s;
+  }
+  .cf--ink .cf__stack {
+    --grow: 3.8s;
+  }
+  .cf--accent .cf__stack {
+    --grow: 7s;
+  }
+
+  .cf__file {
+    height: 0.5rem;
+    border-radius: 2px;
+    background: var(--graphite);
+    /* a hairline top edge lifts each sheet off the one below it */
+    border-top: 1px solid var(--paper-sunken);
+  }
+
+  /* every third sheet nudges over, so the deck reads as a real paper pile */
+  .cf__file:nth-child(3n) {
+    margin-left: 3px;
+  }
+
+  .cf--accent .cf__file {
+    background: var(--accent);
+  }
+
+  /* lane 1's deck is warm-tinted: the volume reads as waste, not progress */
+  .cf--clay .cf__file {
+    background: var(--clay);
+    background: color-mix(in srgb, var(--graphite) 55%, var(--clay));
+  }
+
+  .cf__count {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    line-height: 1.2;
+    white-space: nowrap;
+    color: var(--graphite);
+  }
+
+  .cf--clay .cf__count {
+    color: var(--clay);
+  }
+
+  .cf--accent .cf__count {
+    color: var(--accent);
+  }
+
+  /* reveal the deck bottom-up (inset from the top shrinks to nothing), hold it
+     full, then fade out and regrow — a pile that keeps climbing. */
+  @keyframes cf-grow {
+    0% {
+      clip-path: inset(100% 0 0 0);
+      opacity: 0.25;
+    }
+    10% {
+      opacity: 1;
+    }
+    62% {
+      clip-path: inset(0 0 0 0);
+      opacity: 1;
+    }
+    90% {
+      clip-path: inset(0 0 0 0);
+      opacity: 1;
+    }
+    100% {
+      clip-path: inset(0 0 0 0);
+      opacity: 0.25;
+    }
+  }
+
+  /* the "so what" to the right of each lane */
+  .cf__writeup {
+    margin: 0;
+    max-width: 34ch;
+    font-size: 0.8rem;
+    line-height: 1.45;
+    color: var(--graphite);
+  }
+
+  .cf--accent .cf__writeup {
+    color: var(--ink);
+  }
+
+  /* ------------------------------------------------------------- responsive */
+  /* Below the min-width the metaphor stays intact and scrolls sideways, the
+     site's existing overflow idiom (see .tools__scroll). Handled by the wrapper
+     in index.astro; here we just keep the stage from collapsing. */
+
+  /* ------------------------------------------------------------- motion off */
+  @media (prefers-reduced-motion: reduce) {
+    /* Static, legible end-state: the piles + bin + nodes remain; the in-flight
+       chips are hidden so nothing sits frozen mid-air, and the prompt rests
+       visible beside the agent. */
+    .cf__chip {
+      animation: none;
+      opacity: 0;
+    }
+    .cf__stack {
+      animation: none;
+      clip-path: none;
+      opacity: 1;
+    }
+    .cf__promptwrap {
+      animation: none;
+      opacity: 1;
+    }
+  }
+</style>
