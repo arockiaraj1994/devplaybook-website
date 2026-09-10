@@ -79,6 +79,10 @@ const clients = [
     max-width: 26rem;
     margin-inline: auto;
     aspect-ratio: 1;
+    /* A rotated box reports a bounding box up to 1.4x its size, and that
+       counts toward the page's scrollable area even though nothing visible
+       sits there. The chips are inset far enough to survive the clip. */
+    overflow: hidden;
   }
 
   /* Inset by half a chip, so a chip centred on the track's edge stays inside
@@ -86,7 +90,7 @@ const clients = [
   .orbit__ring,
   .orbit__track {
     position: absolute;
-    inset: calc(var(--chip) / 2);
+    inset: calc(var(--chip) / 2 + 2px);
   }
 
   .orbit__ring {

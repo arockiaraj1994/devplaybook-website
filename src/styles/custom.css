@@ -165,7 +165,11 @@ body {
 .spine {
   display: grid;
   gap: clamp(1rem, 3vw, 3rem);
-  grid-template-columns: 1fr;
+  /* `1fr` is minmax(auto, 1fr), and that auto minimum is the column's
+     min-content - so the longest line of a code block held this column at
+     530px on a 390px phone. minmax(0, 1fr) lets it shrink and hands the
+     overflow to the scroll containers that are meant to take it. */
+  grid-template-columns: minmax(0, 1fr);
 }
 
 @media (min-width: 60rem) {
@@ -340,8 +344,16 @@ code,
   max-width: 30ch;
 }
 
+/* Two deliberate lines only where both actually fit. Below that the forced
+   breaks produced four ragged lines, so let the sentences flow and balance. */
 .hero__title span {
-  display: block;
+  display: inline;
+}
+
+@media (min-width: 34rem) {
+  .hero__title span {
+    display: block;
+  }
 }
 
 .hero__sub {
@@ -403,6 +415,10 @@ code,
 
 .compare {
   display: grid;
+  /* An implicit `auto` track is sized from max-content, so the code block
+     inside held the panel at its full 536px at every viewport and pushed the
+     page 150-240px wide on a phone. minmax(0, 1fr) lets the track shrink. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 1px;
   background: var(--hairline);
   border: 1px solid var(--hairline);
@@ -412,11 +428,12 @@ code,
 
 @media (min-width: 56rem) {
   .compare {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 }
 
 .repo {
+  min-width: 0;
   background: var(--paper-raised);
   margin: 0;
   padding: 1.5rem clamp(1rem, 2.5vw, 1.75rem) 1.75rem;
@@ -439,6 +456,7 @@ code,
 }
 
 .code {
+  min-width: 0;
   font-family: var(--font-mono);
   font-size: clamp(0.75rem, 1.5vw, 0.8125rem);
   line-height: 1.75;
@@ -646,7 +664,7 @@ code,
 
 @media (min-width: 48rem) {
   .pair {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 }
 
@@ -663,7 +681,7 @@ code,
 
 @media (min-width: 48rem) {
   .shots {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 }
 
