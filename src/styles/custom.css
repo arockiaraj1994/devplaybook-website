@@ -1,0 +1,831 @@
+/*
+ * dev-playbook design system.
+ *
+ * Loaded by Starlight (customCss) and imported by BaseLayout, so the docs, the
+ * landing page and the blog share one palette and one type stack.
+ *
+ * Theme mechanism is Starlight's: `data-theme` on <html>, dark living in :root
+ * and light as the override. Keep that shape or the theme toggle desyncs.
+ *
+ * The material here is paper and editing ink - this is a product about written
+ * standards, so it is set like a document, not like a terminal.
+ */
+
+/* ---------------------------------------------------------------- tokens */
+
+:root {
+  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-body: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --measure: 62ch;
+  --shell: 74rem;
+  --gutter: clamp(1.25rem, 5vw, 4rem);
+  --spine: 11rem;
+
+  /* dark, matching Starlight's default-in-:root convention */
+  --paper: #151226;
+  --paper-raised: #1e1a33;
+  --paper-sunken: #100e1d;
+  --ink: #edebf5;
+  --graphite: #a39cbf;
+  --hairline: #322b4d;
+  --hairline-soft: #262040;
+  --accent: #a796ff;
+  --accent-strong: #bfb2ff;
+  --accent-wash: #221d3d;
+  --clay: #e8836f;
+  --clay-wash: #2e1d1c;
+}
+
+:root[data-theme='light'] {
+  --paper: #f8f7fb;
+  --paper-raised: #ffffff;
+  --paper-sunken: #f2f0f7;
+  --ink: #1c1733;
+  --graphite: #5a5570;
+  --hairline: #dedae8;
+  --hairline-soft: #ebe8f2;
+  --accent: #4a32c8;
+  --accent-strong: #3a25a8;
+  --accent-wash: #f0edfb;
+  --clay: #a93b2e;
+  --clay-wash: #fbf0ee;
+}
+
+/* --------------------------------------------------- Starlight mapping */
+
+:root {
+  --sl-font: var(--font-body);
+  --sl-font-mono: var(--font-mono);
+
+  --sl-color-accent: var(--accent);
+  --sl-color-accent-high: var(--accent-strong);
+  --sl-color-accent-low: var(--accent-wash);
+  --sl-color-text-accent: var(--accent);
+  --sl-color-bg: var(--paper);
+  --sl-color-bg-nav: var(--paper);
+  --sl-color-bg-sidebar: var(--paper);
+  --sl-color-bg-inline-code: var(--paper-sunken);
+  --sl-color-text: var(--ink);
+  --sl-color-gray-1: var(--ink);
+  --sl-color-gray-2: var(--graphite);
+  --sl-color-gray-3: var(--graphite);
+  --sl-color-hairline: var(--hairline);
+  --sl-color-hairline-light: var(--hairline-soft);
+  --sl-color-hairline-shade: var(--hairline-soft);
+}
+
+/* Docs headings pick up the display face; body copy stays in Plex Sans. */
+.sl-markdown-content :is(h1, h2, h3),
+.content-panel h1 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.sl-markdown-content {
+  --sl-content-width: 46rem;
+}
+
+/* ------------------------------------------------------------- baseline */
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+:where(a):focus-visible,
+:where(button):focus-visible,
+:where(summary):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* =========================================================== the site
+   Everything below is scoped to .site so it cannot collide with Starlight's
+   own layout rules on the docs pages.
+   ======================================================================= */
+
+.site {
+  font-size: 1.0625rem;
+  line-height: 1.65;
+}
+
+.site :is(h1, h2, h3, h4) {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin: 0;
+  text-wrap: balance;
+}
+
+.site p,
+.site li {
+  max-width: var(--measure);
+}
+
+.site a {
+  color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+.shell {
+  max-width: var(--shell);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* One rule owns vertical section rhythm, so nothing has to fight it later. */
+.band {
+  padding-block: clamp(3.5rem, 8vw, 6.5rem);
+  border-top: 1px solid var(--hairline-soft);
+}
+
+.band--flush {
+  border-top: 0;
+}
+
+/* The spine: a narrow column for the section's name, a wide one for content.
+   This is the document device the whole page is built on. */
+.spine {
+  display: grid;
+  gap: clamp(1rem, 3vw, 3rem);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 60rem) {
+  .spine {
+    grid-template-columns: var(--spine) minmax(0, 1fr);
+  }
+}
+
+.spine__label {
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--graphite);
+  padding-top: 0.4rem;
+}
+
+.spine__body > * + * {
+  margin-top: 1.25rem;
+}
+
+.h2 {
+  font-size: clamp(1.6rem, 3.4vw, 2.35rem);
+}
+
+.h3 {
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.4;
+}
+
+.lead {
+  font-size: clamp(1.0625rem, 1.6vw, 1.25rem);
+  color: var(--graphite);
+  line-height: 1.55;
+}
+
+.muted {
+  color: var(--graphite);
+}
+
+.small {
+  font-size: 0.9375rem;
+}
+
+code,
+.mono {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+.site :not(pre) > code {
+  background: var(--paper-sunken);
+  border-radius: 3px;
+  padding: 0.1em 0.3em;
+}
+
+/* -------------------------------------------------------------- header */
+
+.masthead {
+  border-bottom: 1px solid var(--hairline-soft);
+}
+
+.masthead__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  min-height: 4rem;
+  flex-wrap: wrap;
+}
+
+.wordmark {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-family: var(--font-display);
+  font-size: 1.1875rem;
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: none;
+  letter-spacing: -0.02em;
+}
+
+.wordmark__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--accent);
+  flex: none;
+}
+
+.navlinks {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.75rem, 2vw, 1.75rem);
+  font-size: 0.9375rem;
+}
+
+.navlinks a {
+  color: var(--graphite);
+  text-decoration: none;
+}
+
+.navlinks a:hover,
+.navlinks a[aria-current='page'] {
+  color: var(--ink);
+}
+
+.themetoggle {
+  background: none;
+  border: 1px solid var(--hairline);
+  border-radius: 4px;
+  color: var(--graphite);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.875rem;
+  padding: 0.25rem 0.6rem;
+  line-height: 1.4;
+}
+
+.themetoggle:hover {
+  color: var(--ink);
+  border-color: var(--graphite);
+}
+
+/* ---------------------------------------------------------------- hero */
+
+.hero {
+  padding-block: clamp(3rem, 9vw, 6rem) clamp(2.5rem, 6vw, 4rem);
+}
+
+.hero__title {
+  font-size: clamp(2.25rem, 7.2vw, 4.25rem);
+  line-height: 1.02;
+  max-width: 30ch;
+}
+
+.hero__title span {
+  display: block;
+}
+
+.hero__sub {
+  margin-top: 1.5rem;
+  max-width: 58ch;
+  font-size: clamp(1.0625rem, 1.7vw, 1.3125rem);
+  line-height: 1.55;
+  color: var(--graphite);
+}
+
+.hero__actions {
+  margin-top: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.btn {
+  display: inline-block;
+  background: var(--accent);
+  color: var(--paper-raised);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  padding: 0.6rem 1.1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+:root[data-theme='light'] .btn {
+  color: #ffffff;
+}
+
+:root:not([data-theme='light']) .btn {
+  color: var(--paper);
+}
+
+.btn:hover {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+}
+
+.btn--quiet {
+  background: none;
+  border-color: var(--hairline);
+  color: var(--ink);
+}
+
+:root[data-theme='light'] .btn--quiet,
+:root:not([data-theme='light']) .btn--quiet {
+  color: var(--ink);
+}
+
+.btn--quiet:hover {
+  background: var(--paper-sunken);
+  border-color: var(--graphite);
+}
+
+/* ------------------------------------------------------- the comparison */
+
+.compare {
+  display: grid;
+  gap: 1px;
+  background: var(--hairline);
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: clamp(2.5rem, 6vw, 4rem);
+}
+
+@media (min-width: 56rem) {
+  .compare {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.repo {
+  background: var(--paper-raised);
+  margin: 0;
+  padding: 1.5rem clamp(1rem, 2.5vw, 1.75rem) 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.repo__caption {
+  font-size: 0.9375rem;
+  color: var(--graphite);
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.repo__caption b {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.code {
+  font-family: var(--font-mono);
+  font-size: clamp(0.75rem, 1.5vw, 0.8125rem);
+  line-height: 1.75;
+  margin: 0;
+  overflow-x: auto;
+  tab-size: 4;
+}
+
+.code__line {
+  display: block;
+  white-space: pre;
+  padding-inline: 0.6rem;
+  border-left: 2px solid transparent;
+}
+
+.code__line--flagged {
+  border-left-color: var(--clay);
+  background: var(--clay-wash);
+}
+
+.marks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.6rem;
+  border-top: 1px solid var(--hairline-soft);
+  padding-top: 1.25rem;
+  margin-top: auto;
+}
+
+.marks li {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--ink);
+  padding-left: 1.5rem;
+  position: relative;
+  max-width: none;
+}
+
+/* A reviewer's pencil stroke, not a bullet. */
+.marks li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 0.85rem;
+  height: 0;
+  border-top: 2px solid var(--clay);
+}
+
+.verdict {
+  border-top: 1px solid var(--hairline-soft);
+  padding-top: 1.25rem;
+  margin: auto 0 0;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--graphite);
+  max-width: none;
+}
+
+.compare__note {
+  margin-top: 1rem;
+  font-size: 0.9375rem;
+  color: var(--graphite);
+  max-width: none;
+}
+
+/* ------------------------------------------------------- the exchange */
+
+.exchange {
+  font-family: var(--font-mono);
+  font-size: clamp(0.75rem, 1.5vw, 0.8125rem);
+  line-height: 1.8;
+  background: var(--paper-raised);
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
+  padding: 1.25rem clamp(1rem, 2.5vw, 1.5rem);
+  overflow-x: auto;
+}
+
+.exchange dl {
+  margin: 0;
+  display: grid;
+  gap: 0.15rem 1rem;
+  grid-template-columns: max-content minmax(0, 1fr);
+}
+
+.exchange dt {
+  color: var(--graphite);
+  white-space: nowrap;
+}
+
+.exchange dd {
+  margin: 0;
+  color: var(--ink);
+  min-width: 0;
+}
+
+.exchange__sent,
+.exchange__back {
+  display: block;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.exchange__sent {
+  color: var(--accent);
+}
+
+.exchange__back {
+  color: var(--graphite);
+  margin-top: 0.9rem;
+  margin-bottom: 0.4rem;
+}
+
+/* ---------------------------------------------------------- tool table */
+
+.tools {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+  text-align: left;
+}
+
+.tools th,
+.tools td {
+  border-bottom: 1px solid var(--hairline-soft);
+  padding: 0.85rem 1rem 0.85rem 0;
+  vertical-align: baseline;
+}
+
+.tools th {
+  font-weight: 500;
+  color: var(--graphite);
+  font-size: 0.875rem;
+  border-bottom-color: var(--hairline);
+}
+
+.tools td:first-child {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  white-space: nowrap;
+  padding-right: 1.5rem;
+}
+
+.tools tr:last-child td {
+  border-bottom: 0;
+}
+
+.tools__scroll {
+  overflow-x: auto;
+}
+
+.writes {
+  color: var(--clay);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+/* -------------------------------------------------------------- packs */
+
+.packs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0;
+}
+
+.packs li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--hairline-soft);
+  padding: 0.7rem 0;
+  max-width: none;
+}
+
+.packs li:last-child {
+  border-bottom: 0;
+}
+
+.packs__name {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.packs__meta {
+  font-size: 0.875rem;
+  color: var(--graphite);
+  font-family: var(--font-mono);
+}
+
+/* ---------------------------------------------------------- two columns */
+
+.pair {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 3rem);
+}
+
+@media (min-width: 48rem) {
+  .pair {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.pair > div > * + * {
+  margin-top: 0.75rem;
+}
+
+/* ------------------------------------------------------------ shots */
+
+.shots {
+  display: grid;
+  gap: 1.5rem;
+}
+
+@media (min-width: 48rem) {
+  .shots {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.shot {
+  margin: 0;
+}
+
+.shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--hairline);
+  border-radius: 5px;
+}
+
+.shot figcaption {
+  margin-top: 0.6rem;
+  font-size: 0.875rem;
+  color: var(--graphite);
+}
+
+.shot--wide {
+  grid-column: 1 / -1;
+}
+
+/* ------------------------------------------------------------- install */
+
+.install {
+  background: var(--paper-raised);
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
+  padding: 1.1rem 1.25rem;
+  font-family: var(--font-mono);
+  font-size: clamp(0.75rem, 1.6vw, 0.8125rem);
+  line-height: 1.9;
+  overflow-x: auto;
+}
+
+.install span {
+  display: block;
+  white-space: pre;
+}
+
+.install .cmd {
+  color: var(--ink);
+}
+
+/* --------------------------------------------------------------- blog */
+
+.postlist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0;
+}
+
+.postlist li {
+  border-bottom: 1px solid var(--hairline-soft);
+  padding: 1.5rem 0;
+  max-width: none;
+}
+
+.postlist li:first-child {
+  padding-top: 0;
+}
+
+.postlist h2 {
+  font-size: 1.375rem;
+}
+
+.postlist a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.postlist a:hover {
+  color: var(--accent);
+}
+
+.postlist time {
+  font-size: 0.875rem;
+  color: var(--graphite);
+  font-family: var(--font-mono);
+}
+
+.prose {
+  max-width: 40rem;
+}
+
+.prose > * + * {
+  margin-top: 1.15rem;
+}
+
+.prose :is(h2, h3) {
+  margin-top: 2.25rem;
+}
+
+.prose h2 {
+  font-size: 1.5rem;
+}
+
+.prose pre {
+  background: var(--paper-raised);
+  border: 1px solid var(--hairline);
+  border-radius: 5px;
+  padding: 1rem;
+  overflow-x: auto;
+  font-size: 0.8125rem;
+  line-height: 1.7;
+}
+
+.prose blockquote {
+  border-left: 2px solid var(--accent);
+  padding-left: 1.25rem;
+  margin-left: 0;
+  color: var(--graphite);
+}
+
+/* ------------------------------------------------------------- footer */
+
+.footer {
+  border-top: 1px solid var(--hairline);
+  padding-block: 2.5rem 3rem;
+  font-size: 0.9375rem;
+  color: var(--graphite);
+}
+
+.footer__inner {
+  display: flex;
+  gap: 1.5rem 2.5rem;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.footer nav {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.footer a {
+  color: var(--graphite);
+  text-decoration: none;
+}
+
+.footer a:hover {
+  color: var(--ink);
+}
+
+.footer p {
+  margin: 0;
+  max-width: 44ch;
+}
+
+/* ------------------------------------------------------- capability grid
+   A scan device: eight cells, each naming real components rather than
+   describing them. The left rule groups; it does not decorate. */
+
+.grid {
+  display: grid;
+  gap: 0;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 34rem) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+    column-gap: clamp(1.5rem, 4vw, 3rem);
+  }
+}
+
+.cell {
+  border-left: 1px solid var(--hairline);
+  padding: 0.9rem 0 1.1rem 1.1rem;
+}
+
+.cell__name {
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.4;
+  color: var(--accent);
+  margin: 0 0 0.35rem;
+}
+
+.cell__items {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  color: var(--graphite);
+  margin: 0;
+  max-width: none;
+}

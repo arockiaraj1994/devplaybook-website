@@ -1,0 +1,41 @@
+---
+import { getCollection, render } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export const getStaticPaths = (async () => {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+
+const fmt = (d: Date) =>
+  d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+---
+
+<BaseLayout title={`${post.data.title} - dev-playbook`} description={post.data.description} ogType="article">
+  <article class="shell band band--flush">
+    <div class="spine">
+      <p class="spine__label">
+        <time datetime={post.data.pubDate.toISOString()}>{fmt(post.data.pubDate)}</time>
+      </p>
+      <div class="spine__body">
+        <h1 class="h2">{post.data.title}</h1>
+        <p class="lead">{post.data.description}</p>
+        <div class="prose">
+          <Content />
+        </div>
+        <p class="small muted">
+          <a href="/blog/">Back to the blog</a>
+        </p>
+      </div>
+    </div>
+  </article>
+</BaseLayout>

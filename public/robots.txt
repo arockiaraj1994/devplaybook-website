@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://devplaybook.co.in/sitemap-index.xml
