@@ -1,0 +1,188 @@
+---
+/*
+ * The clients dev-playbook is spoken to by, orbiting the store they read.
+ *
+ * The list is not decorative: these are the editors `_EDITOR_PATTERNS` in
+ * mcp/server.py actually detects from a client's User-Agent, plus the MCP mark
+ * standing for anything else that speaks the protocol. VS Code is detected too
+ * but has no mark here - simple-icons carries no Microsoft brands - so it is
+ * named in the sentence beneath the ring instead.
+ *
+ * Glyphs are simple-icons (CC0-1.0), vendored into src/assets/icons rather than
+ * hotlinked. They are monochrome and inherit currentColor, so they are all
+ * inked the same: the real brand hexes are four blacks and two colours, which
+ * would read as a smudge rather than as a palette. Marks remain their owners'
+ * trademarks.
+ *
+ * Keeping a glyph upright takes two cancellations - see the styles below.
+ */
+import claudeCodeSvg from '../assets/icons/claude-code.svg?raw';
+import cursorSvg from '../assets/icons/cursor.svg?raw';
+import windsurfSvg from '../assets/icons/windsurf.svg?raw';
+import zedSvg from '../assets/icons/zed.svg?raw';
+import mcpSvg from '../assets/icons/mcp.svg?raw';
+
+/** Pull the single path out of a simple-icons glyph. */
+const pathOf = (svg: string, name: string) => {
+  const d = svg.match(/<path[^>]*\sd="([^"]+)"/)?.[1];
+  if (!d) throw new Error(`No path found in the ${name} icon`);
+  return d;
+};
+
+const clients = [
+  { name: 'Claude Code', svg: claudeCodeSvg },
+  { name: 'Cursor', svg: cursorSvg },
+  { name: 'Windsurf', svg: windsurfSvg },
+  { name: 'Zed', svg: zedSvg },
+  { name: 'Any MCP client', svg: mcpSvg },
+].map((c, i, all) => ({
+  name: c.name,
+  d: pathOf(c.svg, c.name),
+  angle: (360 / all.length) * i,
+}));
+---
+
+<div class="orbit" aria-hidden="true">
+  <div class="orbit__ring"></div>
+
+  <div class="orbit__track">
+    {clients.map((c) => (
+      <div class="orbit__slot" style={`--angle: ${c.angle}deg`}>
+        <div class="orbit__chip">
+          <div class="orbit__mark">
+            <svg viewBox="0 0 24 24" width="22" height="22">
+              <title>{c.name}</title>
+              <path d={c.d} fill="currentColor" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <div class="orbit__core">
+    <svg viewBox="0 0 32 32" width="42" height="42">
+      <rect width="32" height="32" rx="7" fill="var(--accent)" />
+      <path d="M9 16.8l4.1 4.1L23 11" fill="none" stroke="var(--paper-raised)"
+            stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+    <span>dev-playbook</span>
+  </div>
+</div>
+
+<style>
+  .orbit {
+    --chip: 3.25rem;
+    --dur: 72s;
+    position: relative;
+    width: 100%;
+    max-width: 26rem;
+    margin-inline: auto;
+    aspect-ratio: 1;
+  }
+
+  /* Inset by half a chip, so a chip centred on the track's edge stays inside
+     the box instead of being clipped as it passes 0deg and 180deg. */
+  .orbit__ring,
+  .orbit__track {
+    position: absolute;
+    inset: calc(var(--chip) / 2);
+  }
+
+  .orbit__ring {
+    border: 1px dashed var(--hairline);
+    border-radius: 50%;
+  }
+
+  .orbit__track {
+    animation: orbit-spin var(--dur) linear infinite;
+  }
+
+  .orbit__slot {
+    position: absolute;
+    inset: 0;
+    transform: rotate(var(--angle));
+  }
+
+  /* Two cancellations keep a glyph upright: the chip undoes its own placement
+     angle, and the mark undoes the track's spin. They must sit on separate
+     elements - an animated transform overrides a static one. */
+  .orbit__chip {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: var(--chip);
+    height: var(--chip);
+    margin-top: calc(var(--chip) / -2);
+    margin-left: calc(var(--chip) / -2);
+    transform: rotate(calc(-1 * var(--angle)));
+
+    display: grid;
+    place-items: center;
+    background: var(--paper-raised);
+    border: 1px solid var(--hairline);
+    border-radius: 50%;
+  }
+
+  .orbit__mark {
+    display: grid;
+    place-items: center;
+    color: var(--ink);
+    animation: orbit-counterspin var(--dur) linear infinite;
+  }
+
+  /* Sized against the orbit radius so the middle does not read as dead space.
+     Matches the core-to-ring proportion of the loop diagram further down the
+     page, so the two circular graphics feel like one family. */
+  .orbit__core {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 54%;
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 0.5rem;
+    text-align: center;
+
+    background: var(--paper-raised);
+    border: 1px solid var(--hairline);
+    border-radius: 50%;
+  }
+
+  .orbit__core span {
+    font-family: var(--font-display);
+    font-size: 1.1875rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+
+  @keyframes orbit-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes orbit-counterspin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(-360deg); }
+  }
+
+  /* Let anyone who wants to read a logo stop it. */
+  .orbit:hover .orbit__track,
+  .orbit:hover .orbit__mark,
+  .orbit:focus-within .orbit__track,
+  .orbit:focus-within .orbit__mark {
+    animation-play-state: paused;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .orbit__track,
+    .orbit__mark {
+      animation: none;
+    }
+  }
+</style>

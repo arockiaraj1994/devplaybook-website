@@ -298,6 +298,26 @@ code,
 
 .hero {
   padding-block: clamp(3rem, 9vw, 6rem) clamp(2.5rem, 6vw, 4rem);
+  display: grid;
+  gap: clamp(2.5rem, 6vw, 4rem);
+  align-items: center;
+}
+
+@media (min-width: 64rem) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 26rem);
+  }
+}
+
+.hero__text > * + * {
+  margin-top: 1.5rem;
+}
+
+.hero__clients {
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--graphite);
+  max-width: 52ch;
 }
 
 .hero__title {
@@ -311,7 +331,6 @@ code,
 }
 
 .hero__sub {
-  margin-top: 1.5rem;
   max-width: 58ch;
   font-size: clamp(1.0625rem, 1.7vw, 1.3125rem);
   line-height: 1.55;
@@ -319,7 +338,6 @@ code,
 }
 
 .hero__actions {
-  margin-top: 2rem;
   display: flex;
   align-items: center;
   gap: 1.5rem;
@@ -376,7 +394,6 @@ code,
   border: 1px solid var(--hairline);
   border-radius: 6px;
   overflow: hidden;
-  margin-top: clamp(2.5rem, 6vw, 4rem);
 }
 
 @media (min-width: 56rem) {

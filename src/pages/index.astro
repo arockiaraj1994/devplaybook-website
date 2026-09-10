@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import LoopDiagram from '../components/LoopDiagram.astro';
+import OrbitRing from '../components/OrbitRing.astro';
 import CopyBlock from '../components/CopyBlock.astro';
 
 import shotDashboard from '../assets/screenshots/dev_p_dashboard.png';
@@ -129,23 +130,38 @@ const description =
 <BaseLayout title={title} description={description}>
   <!-- ------------------------------------------------------------- hero -->
   <section class="shell hero">
-    <h1 class="hero__title">
-      <span>Writing code got cheap.</span>
-      <span>Writing good code didn't.</span>
-    </h1>
+    <div class="hero__text">
+      <h1 class="hero__title">
+        <span>Writing code got cheap.</span>
+        <span>Writing good code didn't.</span>
+      </h1>
 
-    <p class="hero__sub">
-      Your agent can turn out a thousand lines before lunch. It still doesn't know that your
-      team logs and rethrows, that the tests sit beside the source, or what you mean by done.
-      dev-playbook serves those rules over MCP so the agent reads them before it writes, and
-      generates the whole set if your repo hasn't got any.
-    </p>
+      <p class="hero__sub">
+        Your agent can turn out a thousand lines before lunch. It still doesn't know that your
+        team logs and rethrows, that the tests sit beside the source, or what you mean by done.
+        dev-playbook serves those rules over MCP so the agent reads them before it writes, and
+        generates the whole set if your repo hasn't got any.
+      </p>
 
-    <div class="hero__actions">
-      <a class="btn" href="/docs/start/install-plugin/">Install the plugin</a>
-      <a class="btn btn--quiet" href="/docs/">Read the docs</a>
+      <div class="hero__actions">
+        <a class="btn" href="/docs/start/install-plugin/">Install the plugin</a>
+        <a class="btn btn--quiet" href="/docs/">Read the docs</a>
+      </div>
+
+      <p class="hero__clients">
+        Claude Code installs it as a plugin in two commands. Cursor, Windsurf, Zed, VS Code and
+        anything else that speaks MCP connect over
+        <a href="/docs/start/other-clients/">SSE</a>.
+      </p>
     </div>
 
+    <div class="hero__figure">
+      <OrbitRing />
+    </div>
+  </section>
+
+  <!-- -------------------------------------------------------- comparison -->
+  <section class="shell band">
     <div class="compare">
       <figure class="repo">
         <figcaption class="repo__caption"><b>A repo with no standards</b></figcaption>

@@ -38,6 +38,8 @@ export default defineConfig({
       description:
         "Your team's coding standards, served to coding agents over MCP - and bootstrapped by them.",
       favicon: '/favicon.svg',
+      // The site has its own 404 in src/pages, with the landing-page chrome.
+      disable404Route: true,
       customCss: ['./src/styles/custom.css'],
       head: fontHead,
       social: [{ label: 'GitHub', icon: 'github', href: REPO }],
