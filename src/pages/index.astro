@@ -1,14 +1,7 @@
 ---
-import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import LoopDiagram from '../components/LoopDiagram.astro';
-import OrbitRing from '../components/OrbitRing.astro';
+import CodeFlow from '../components/CodeFlow.astro';
 import CopyBlock from '../components/CopyBlock.astro';
-
-import shotDashboard from '../assets/screenshots/dev_p_dashboard.png';
-import shotProjects from '../assets/screenshots/dev_p_projects.png';
-import shotTools from '../assets/screenshots/dev_p_tools.png';
-import shotActivity from '../assets/screenshots/dev_p_activity.png';
 
 /*
  * Code samples live here rather than in the markup because Astro reads `{` in
@@ -43,50 +36,6 @@ const install = [
   '/plugin install dev-playbook@dev-playbook',
 ];
 
-const scaffold = [
-  'playbook_list_templates()',
-  'playbook_scaffold_standards(project="billing", languages=["python"],',
-  '    placeholders={"package": "acme.billing"}, dry_run=True)',
-  'playbook_scaffold_standards(..., dry_run=False)',
-];
-
-const tools = [
-  {
-    name: 'playbook_start_task',
-    does: 'Guardrails, the workflow matching the change at hand, and the refs to read next.',
-    writes: false,
-  },
-  {
-    name: 'playbook_get_standard',
-    does: 'One document, addressed by path or by shorthand.',
-    writes: false,
-  },
-  {
-    name: 'playbook_find_standards',
-    does: "Search a project's standards, or list all of them when given no query.",
-    writes: false,
-  },
-  {
-    name: 'playbook_list_templates',
-    does: 'The pack catalogue: rule counts, required placeholders, per-pack detail.',
-    writes: false,
-  },
-  {
-    name: 'playbook_scaffold_standards',
-    does: 'A standards project written from the base pack plus the language packs you pick.',
-    writes: true,
-  },
-];
-
-const packs = [
-  { name: 'Go', id: 'go' },
-  { name: 'Java', id: 'java' },
-  { name: 'Kotlin', id: 'kotlin' },
-  { name: 'Python', id: 'python' },
-  { name: 'Rust', id: 'rust' },
-  { name: 'TypeScript', id: 'typescript' },
-];
-
 const box = [
   {
     name: 'Five MCP tools',
@@ -118,7 +67,7 @@ const box = [
   },
   {
     name: 'Runs anywhere',
-    items: 'uv, Docker, Compose, one SQLite file',
+    items: 'uv, Docker, Compose',
   },
 ];
 
@@ -132,15 +81,14 @@ const description =
   <section class="shell hero">
     <div class="hero__text">
       <h1 class="hero__title">
-        <span>Writing code got cheap.</span>{' '}
-        <span>Writing good code didn't.</span>
+        <span>Writing code got <b class="hl">cheap</b>.</span>{' '}
+        <span>Writing <b class="hl">good code</b> didn't.</span>{' '}
+        <span>More code is the <b class="hl">expensive</b> part.</span>
       </h1>
 
       <p class="hero__sub">
-        Your agent can turn out a thousand lines before lunch. It still doesn't know that your
-        team logs and rethrows, that the tests sit beside the source, or what you mean by done.
-        dev-playbook serves those rules over MCP so the agent reads them before it writes, and
-        generates the whole set if your repo hasn't got any.
+        Your agent writes a thousand lines before lunch. None of them to your team's conventions.
+        dev-playbook serves those rules over MCP, so the agent reads them before it writes.
       </p>
 
       <div class="hero__actions">
@@ -149,14 +97,21 @@ const description =
       </div>
 
       <p class="hero__clients">
-        Claude Code installs it as a plugin in two commands. Cursor, Windsurf, Zed, VS Code and
-        anything else that speaks MCP connect over{' '}
+        Two commands to install in Claude Code. Cursor, Windsurf, Zed and any MCP client connect
+        over{' '}
         <a href="/docs/start/other-clients/">SSE</a>.
       </p>
     </div>
+  </section>
 
-    <div class="hero__figure">
-      <OrbitRing />
+  <!-- ------------------------------------------------------ where code goes -->
+  <section class="codeflow">
+    <div class="shell codeflow__inner">
+      <div class="codeflow__scroll">
+        <div class="codeflow__lanes">
+          <CodeFlow />
+        </div>
+      </div>
     </div>
   </section>
 
@@ -185,11 +140,6 @@ const description =
         </p>
       </figure>
     </div>
-
-    <p class="compare__note">
-      One prompt: <em>add pagination to /orders</em>. The difference is which repo the agent was
-      standing in.
-    </p>
   </section>
 
   <!-- ------------------------------------------------------------- box -->
@@ -209,271 +159,19 @@ const description =
     </div>
   </section>
 
-  <!-- ---------------------------------------------------------- problem -->
+  <!-- ------------------------------------------------------------- blog -->
   <section class="shell band">
     <div class="spine">
-      <p class="spine__label">The problem</p>
+      <p class="spine__label">Blog</p>
       <div class="spine__body">
-        <h2 class="h2">You already wrote the standards. Nobody reads them.</h2>
+        <h2 class="h2">The rest is on the blog.</h2>
         <p>
-          They're in a Confluence page, or a README nobody opens, or in the head of whoever
-          reviews the pull request.
+          The problem it solves, how the agent asks before it writes, the tool surface, the
+          template packs, the dashboard and how it runs, the enforcement model, and the design
+          decisions behind each, all live on the blog and in the docs.
         </p>
         <p>
-          So agent-written changes keep arriving technically correct and quietly wrong. The
-          wrong test framework. A service where your team uses a repository. An error swallowed
-          where your team logs and rethrows. You catch it in review, explain the convention
-          again, and watch the next change make a different version of the same mistake.
-        </p>
-        <p>
-          The rules aren't the problem. Getting them in front of the agent at the moment it
-          matters is.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- -------------------------------------------------------- mechanism -->
-  <section class="shell band">
-    <div class="spine">
-      <p class="spine__label">How it works</p>
-      <div class="spine__body">
-        <h2 class="h2">The agent asks first, then writes.</h2>
-        <p>
-          One call opens the task. What comes back is scoped to the change at hand rather than
-          the whole corpus, so it costs a round trip instead of a context window.
-        </p>
-
-        <LoopDiagram />
-
-        <p>That first call, in full:</p>
-
-        <div class="exchange">
-          <span class="exchange__sent">→ playbook_start_task("billing", "add pagination to /orders")</span>
-          <span class="exchange__back">←</span>
-          <dl>
-            <dt>guardrails</dt>
-            <dd>every list endpoint has a maximum page size</dd>
-            <dt></dt>
-            <dd>never widen a public response without a version</dd>
-            <dt>workflow</dt>
-            <dd>feature, small</dd>
-            <dt>done when</dt>
-            <dd>tests sit beside the source, one assertion per behaviour</dd>
-            <dt>read next</dt>
-            <dd>core/guardrails.md</dd>
-            <dt></dt>
-            <dd>patterns/python/pagination.md</dd>
-          </dl>
-        </div>
-
-        <p>
-          Then it reads what it was pointed at, with <code>playbook_get_standard</code> when it
-          knows which document it wants and <code>playbook_find_standards</code> when it
-          doesn't.
-        </p>
-        <p>
-          In Claude Code you don't see any of that. A session-start hook puts the repo's
-          guardrails in context before you've typed anything, and the definition of done arrives
-          before the first edit of the session. If the repo has no standards project yet, the
-          first call says so and names the command that fixes it.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ------------------------------------------------------------ tools -->
-  <section class="shell band">
-    <div class="spine">
-      <p class="spine__label">The surface</p>
-      <div class="spine__body">
-        <h2 class="h2">Five tools. Four read, one writes.</h2>
-
-        <div class="tools__scroll">
-          <table class="tools">
-            <thead>
-              <tr>
-                <th scope="col">Tool</th>
-                <th scope="col">What comes back</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tools.map((t) => (
-                <tr>
-                  <td>{t.name}</td>
-                  <td>
-                    {t.does}
-                    {t.writes && <><br /><span class="writes">writes</span></>}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <p>
-          Every tool ships its MCP annotations, so your client knows which call needs a
-          confirmation before it makes one. A client that sees no annotations is entitled to
-          assume the worst, so none go out bare.
-        </p>
-        <p>
-          The one that writes is additive but not idempotent: it creates a standards project and
-          refuses to merge into an existing one. Call it with <code>dry_run=True</code> and you
-          get the manifest with nothing written, which is how an agent can show you what it is
-          about to create before it creates it.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- --------------------------------------------------------- scaffold -->
-  <section class="shell band">
-    <div class="spine">
-      <p class="spine__label">Starting from zero</p>
-      <div class="spine__body">
-        <h2 class="h2">No standards yet? That's the case this was built for.</h2>
-        <p>
-          Ask most teams where their coding standards live and you get a shrug and a link to
-          something from 2021.
-        </p>
-        <p>
-          So the write tool generates the set: guardrails, definition of done, architecture and
-          git rules, task workflows, and per-language standards, anti-patterns and testing docs.
-          290 rules across six languages, each one something a reviewer has had to ask for more
-          than once.
-        </p>
-
-        <CopyBlock lines={scaffold} />
-
-        <p>
-          You accept or reject them one at a time. Every rule carries two to four sentences on
-          what goes wrong without it and a do/don't pair, so you are deciding rather than
-          rubber-stamping a list you have never read.
-        </p>
-        <p>
-          The tool and the dashboard wizard call the same function, and a test diffs the two
-          resulting stores, so the path you took can't change what you got.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ------------------------------------------------------------ packs -->
-  <section class="shell band">
-    <div class="spine">
-      <p class="spine__label">Template packs</p>
-      <div class="spine__body">
-        <h2 class="h2">A base pack, plus one per language.</h2>
-        <p>
-          The base pack owns what every repo needs, and each language pack contributes its rules
-          into those documents. Pick two languages and you get one set of shared docs with both
-          languages' rules in it, not two copies fighting over the same filename.
-        </p>
-
-        <ul class="packs">
-          {packs.map((p) => (
-            <li>
-              <span class="packs__name">{p.name}</span>
-              <span class="packs__meta">{p.id}</span>
-            </li>
-          ))}
-        </ul>
-
-        <p>
-          A pack is a directory with a <code>pack.yaml</code> in it. Point the loader at your
-          own checkout and yours shadow the bundled ones, so a team with house rules doesn't
-          have to fork anything.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- -------------------------------------------------------- dashboard -->
-  <section class="shell band">
-    <div class="spine">
-      <p class="spine__label">The dashboard</p>
-      <div class="spine__body">
-        <h2 class="h2">Author in the browser. See what is actually being read.</h2>
-        <p>
-          Standards live in SQLite, and the dashboard reads the same store the MCP tools do.
-          Create projects through the wizard, edit any document in a four-tab viewer, and check
-          corpus health against the validation rules.
-        </p>
-
-        <div class="shots">
-          <figure class="shot shot--wide">
-            <Image src={shotDashboard} alt="The dev-playbook dashboard home, showing adoption and latency for the MCP tools." loading="eager" />
-            <figcaption>Adoption and latency, per tool.</figcaption>
-          </figure>
-          <figure class="shot">
-            <Image src={shotProjects} alt="The standards projects list in the dashboard." loading="lazy" />
-            <figcaption>Every standards project in the store.</figcaption>
-          </figure>
-          <figure class="shot">
-            <Image src={shotTools} alt="Per-tool call counts and timings in the dashboard." loading="lazy" />
-            <figcaption>Which tools get called, and how long they take.</figcaption>
-          </figure>
-          <figure class="shot shot--wide">
-            <Image src={shotActivity} alt="The activity feed of recent MCP tool calls." loading="lazy" />
-            <figcaption>The call log, so you can see the standards being read.</figcaption>
-          </figure>
-        </div>
-
-        <p>
-          The telemetry answers the question you will have in month two: who is calling the
-          tools, which standards get read, and which ones nobody has touched since you wrote
-          them.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- --------------------------------------------------------- local/team -->
-  <section class="shell band">
-    <div class="spine">
-      <p class="spine__label">Where it runs</p>
-      <div class="spine__body">
-        <h2 class="h2">On your machine, or for the whole team.</h2>
-
-        <div class="pair">
-          <div>
-            <h3 class="h3">On your machine</h3>
-            <p class="small muted">
-              For one developer, or a repo you are trying this on. The plugin starts the server
-              itself over stdio against its own database. Nothing to deploy, no port, no
-              dashboard. It needs <code>uv</code> on your PATH and nothing else.
-            </p>
-          </div>
-          <div>
-            <h3 class="h3">For the team</h3>
-            <p class="small muted">
-              Everyone reads the same standards. Run the server, issue bearer tokens from the
-              dashboard, and point each plugin at it. One place for the standards, one place for
-              everyone's telemetry.
-            </p>
-          </div>
-        </div>
-
-        <p>Same five tools either way.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ------------------------------------------------------ enforcement -->
-  <section class="shell band">
-    <div class="spine">
-      <p class="spine__label">Enforcement</p>
-      <div class="spine__body">
-        <h2 class="h2">Off by default.</h2>
-        <p>
-          Installing a plugin should not stop anyone's work by surprise. Out of the box you get
-          the definition of done as context before your first edit, and one line naming the
-          scaffold command if the repo has no standards. Nothing is blocked.
-        </p>
-        <p>
-          Turn enforcement on and <code>Write</code> and <code>Edit</code> are denied in a repo
-          with no standards project, with a reason that names what is missing. Every edit, not
-          just the first: a gate that closes once is not a gate.
+          <a href="/blog/">Read the blog</a> or browse the <a href="/docs/">docs</a>.
         </p>
       </div>
     </div>
