@@ -42,13 +42,9 @@ const install = [
   '/dev-playbook-init',
 ];
 
-const otherEditors = [
-  '# Codex CLI - one command',
-  'codex mcp add dev-playbook --url http://localhost:8420/sse',
-  '',
-  '# Cursor - add to ~/.cursor/mcp.json',
-  '{ "mcpServers": { "dev-playbook": { "url": "http://localhost:8420/sse" } } }',
-];
+const codexAdd = ['codex mcp add dev-playbook --url http://localhost:8420/sse'];
+
+const cursorAdd = ['{ "mcpServers": { "dev-playbook": { "url": "http://localhost:8420/sse" } } }'];
 
 const box = [
   {
@@ -202,10 +198,15 @@ const description =
         </p>
 
         <p><b>Other editors</b> - any MCP client connects to the same server over SSE.</p>
-        <CopyBlock lines={otherEditors} />
+
+        <p><b>Codex</b> - one command in the terminal:</p>
+        <CopyBlock lines={codexAdd} />
+
+        <p><b>Cursor</b> - add to <code>~/.cursor/mcp.json</code>:</p>
+        <CopyBlock lines={cursorAdd} />
 
         <p>
-          This gives Cursor and Codex the playbook tools. The guardrails hooks and{' '}
+          These give Cursor and Codex the playbook tools. The guardrails hooks and{' '}
           <code>/dev-playbook-init</code> are Claude Code only - elsewhere, ask the agent to read the
           standards and it calls the tools. More in <a href="/docs/plugin/">the plugin docs</a>.
         </p>
