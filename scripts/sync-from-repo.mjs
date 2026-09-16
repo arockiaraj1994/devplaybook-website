@@ -31,6 +31,14 @@ const PAGES = [
     description:
       'Every notable change to dev-playbook, newest first. The MCP server follows semantic versioning.',
   },
+  {
+    from: 'mcp/templates/TEMPLATE_SPEC.md',
+    to: 'src/content/docs/docs/templates/spec.md',
+    title: 'Pack format',
+    description:
+      'The contract a template pack conforms to: layout, pack.yaml, search order and composition.',
+    sidebar: 2,
+  },
 ];
 
 const SCREENSHOTS = { from: 'docs/screenshots', to: 'src/assets/screenshots' };
