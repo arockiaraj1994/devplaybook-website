@@ -42,6 +42,14 @@ const install = [
   '/dev-playbook-init',
 ];
 
+const otherEditors = [
+  '# Codex CLI - one command',
+  'codex mcp add dev-playbook --url http://localhost:8420/sse',
+  '',
+  '# Cursor - add to ~/.cursor/mcp.json',
+  '{ "mcpServers": { "dev-playbook": { "url": "http://localhost:8420/sse" } } }',
+];
+
 const box = [
   {
     name: 'Run it with Docker',
@@ -191,6 +199,15 @@ const description =
           <code>/dev-playbook-init</code> connects to the server, sets your standards up for the
           repo, and turns on the guardrails. Full walk-through in{' '}
           <a href="/docs/get-started/">Get started</a>.
+        </p>
+
+        <p><b>Other editors</b> - any MCP client connects to the same server over SSE.</p>
+        <CopyBlock lines={otherEditors} />
+
+        <p>
+          This gives Cursor and Codex the playbook tools. The guardrails hooks and{' '}
+          <code>/dev-playbook-init</code> are Claude Code only - elsewhere, ask the agent to read the
+          standards and it calls the tools. More in <a href="/docs/plugin/">the plugin docs</a>.
         </p>
       </div>
     </div>
