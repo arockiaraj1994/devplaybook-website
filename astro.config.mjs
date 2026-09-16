@@ -52,6 +52,12 @@ export default defineConfig({
       sidebar: [
         { label: 'Overview', slug: 'docs' },
         { label: 'Get started', slug: 'docs/get-started' },
+        { label: 'The tools', items: [{ autogenerate: { directory: 'docs/tools' } }] },
+        { label: 'Claude Code plugin', items: [{ autogenerate: { directory: 'docs/plugin' } }] },
+        { label: 'Template packs', items: [{ autogenerate: { directory: 'docs/templates' } }] },
+        { label: 'Self-hosting', items: [{ autogenerate: { directory: 'docs/self-host' } }] },
+        { label: 'Concepts', items: [{ autogenerate: { directory: 'docs/concepts' } }] },
+        { label: 'Contributing', items: [{ autogenerate: { directory: 'docs/contribute' } }] },
         { label: 'Changelog', slug: 'changelog' },
       ],
     }),
