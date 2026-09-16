@@ -16,11 +16,11 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 
 import { dirname, join, resolve } from 'node:path';
 
 const SITE = resolve(import.meta.dirname, '..');
-const REPO = resolve(SITE, process.env.PLAYBOOK_REPO ?? '../dev-agent-playbook');
+const REPO = resolve(SITE, process.env.PLAYBOOK_REPO ?? '../dev-playbook');
 const CHECK = process.argv.includes('--check');
 
 const BANNER =
-  '<!-- Synced by scripts/sync-from-repo.mjs. Edit the source in dev-agent-playbook, not here. -->';
+  '<!-- Synced by scripts/sync-from-repo.mjs. Edit the source in dev-playbook, not here. -->';
 
 /** @type {{from: string, to: string, title: string, description: string, sidebar?: number}[]} */
 const PAGES = [
@@ -30,14 +30,6 @@ const PAGES = [
     title: 'Changelog',
     description:
       'Every notable change to dev-playbook, newest first. The MCP server follows semantic versioning.',
-  },
-  {
-    from: 'mcp/templates/TEMPLATE_SPEC.md',
-    to: 'src/content/docs/docs/templates/spec.md',
-    title: 'Pack format',
-    description:
-      'The contract a template pack conforms to: layout, pack.yaml, search order and composition.',
-    sidebar: 2,
   },
 ];
 
@@ -74,7 +66,7 @@ for (const page of PAGES) {
   const source = join(REPO, page.from);
   if (!existsSync(source)) {
     console.error(`missing source: ${source}`);
-    console.error(`set PLAYBOOK_REPO if the playbook repo is not at ../dev-agent-playbook`);
+    console.error(`set PLAYBOOK_REPO if the playbook repo is not at ../dev-playbook`);
     process.exit(1);
   }
 
