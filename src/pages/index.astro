@@ -31,15 +31,29 @@ const marks = [
   'No test. "Done" here means the endpoint returned 200 once, by hand.',
 ];
 
+const run = [
+  'curl -O https://raw.githubusercontent.com/arockiaraj1994/dev-playbook/main/docker-compose.yml',
+  'docker compose up -d',
+];
+
 const install = [
-  '/plugin marketplace add arockiaraj1994/dev-agent-playbook',
+  '/plugin marketplace add arockiaraj1994/dev-playbook',
   '/plugin install dev-playbook@dev-playbook',
+  '/dev-playbook-init',
 ];
 
 const box = [
   {
-    name: 'Five MCP tools',
-    items: 'start_task, get_standard, find_standards, list_templates, scaffold_standards',
+    name: 'Run it with Docker',
+    items: 'one Compose file, one command, on port 8420',
+  },
+  {
+    name: 'Claude Code plugin',
+    items: 'install it, run /dev-playbook-init, and it wires everything up',
+  },
+  {
+    name: 'Reads before it writes',
+    items: 'guardrails and the task workflow arrive before the first edit',
   },
   {
     name: 'Six language packs',
@@ -50,24 +64,8 @@ const box = [
     items: 'guardrails, definition of done, architecture, git rules, task workflows',
   },
   {
-    name: 'Claude Code plugin',
-    items: 'five tools, two skills, SessionStart and PreToolUse hooks',
-  },
-  {
-    name: 'Two transports',
-    items: 'stdio for local, SSE for a shared team server',
-  },
-  {
     name: 'Dashboard',
     items: 'authoring wizard, four-tab editor, adoption and latency',
-  },
-  {
-    name: 'Local auth',
-    items: 'users, pbkdf2 hashes, issuable bearer tokens',
-  },
-  {
-    name: 'Runs anywhere',
-    items: 'uv, Docker, Compose',
   },
 ];
 
@@ -92,14 +90,13 @@ const description =
       </p>
 
       <div class="hero__actions">
-        <a class="btn" href="/docs/start/install-plugin/">Install the plugin</a>
+        <a class="btn" href="/docs/get-started/">Get started</a>
         <a class="btn btn--quiet" href="/docs/">Read the docs</a>
       </div>
 
       <p class="hero__clients">
-        Two commands to install in Claude Code. Cursor, Windsurf, Zed and any MCP client connect
-        over{' '}
-        <a href="/docs/start/other-clients/">SSE</a>.
+        Run the server with Docker, then two commands in Claude Code. Cursor, Windsurf, Zed and any
+        MCP client connect over SSE.
       </p>
     </div>
   </section>
@@ -134,7 +131,7 @@ const description =
           <span class="code__line">{l.t}</span>
         ))}</pre>
         <p class="verdict">
-          Nothing to mark. It read <code>core/guardrails.md</code>, the pagination pattern and
+          Nothing to mark. It read the <code>guardrails</code>, the pagination pattern and
           the definition of done before it wrote a line, so the ceiling, the parameterised
           query, the response model and the test were never up for negotiation.
         </p>
@@ -184,12 +181,16 @@ const description =
       <div class="spine__body">
         <h2 class="h2">Put it in front of your agent this afternoon.</h2>
 
+        <p><b>1. Run the server</b> - download the Compose file and start it with Docker.</p>
+        <CopyBlock lines={run} />
+
+        <p><b>2. Connect Claude Code</b> - install the plugin and run the setup command.</p>
         <CopyBlock lines={install} />
 
         <p>
-          Two commands in Claude Code, then restart it. No server to run, no port, no bearer
-          token. Cursor and Windsurf have no plugin system, so they use the{' '}
-          <a href="/docs/start/other-clients/">manual MCP setup</a>, which is two lines.
+          <code>/dev-playbook-init</code> connects to the server, sets your standards up for the
+          repo, and turns on the guardrails. Full walk-through in{' '}
+          <a href="/docs/get-started/">Get started</a>.
         </p>
       </div>
     </div>

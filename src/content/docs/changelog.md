@@ -4,7 +4,7 @@ description: "Every notable change to dev-playbook, newest first. The MCP server
 editUrl: false
 ---
 
-<!-- Synced by scripts/sync-from-repo.mjs. Edit the source in dev-agent-playbook, not here. -->
+<!-- Synced by scripts/sync-from-repo.mjs. Edit the source in dev-playbook, not here. -->
 
 All notable changes to this repo are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
@@ -13,6 +13,65 @@ Tool name or schema changes bump the **minor** version (until 1.0.0); breaking
 changes after 1.0.0 will bump the **major**.
 
 ## [Unreleased]
+
+### Added - dev-playbook plugin v0.3.0 - Docker-first, one command to set up
+
+The plugin no longer runs the server from a source checkout. It connects to a
+dev-playbook server you run yourself (a local Docker container by default) over
+MCP SSE, and a new `/dev-playbook-init` command does the first-run setup.
+
+- **`/dev-playbook-init`** (new `commands/` dir) - resolves this repo's project
+  (its directory basename), registers the MCP at user scope, updates the global
+  `~/.claude/CLAUDE.md`, arms the edit gate, and checks/creates the repo's
+  standards project (reusing the scaffold flow). Idempotent. Backed by a stdlib
+  helper `scripts/dp_init.py`.
+- **Docker-first connection** - the bundled `.mcp.json` is now a direct SSE entry
+  to `server_url` (default `http://localhost:8420/sse`); no bridge, no `uv`, no
+  checkout. `scripts/playbook-mcp.sh` / `sse_bridge.py` remain for contributors
+  running from source.
+- **Edit gate works against a remote server** - `edit_gate` blocks `Write`/`Edit`
+  in a repo that is not configured (no local DB project **and** no per-repo
+  marker), and enforcement can be armed by an init marker rather than only the
+  plugin option. The hooks fall back to marker-based state when the DB is in a
+  container.
+- Plugin bumped to **0.3.0**; marketplace entry updated. (Redmine #383)
+
+### Changed - BREAKING: one read tool per artifact family (MCP server v2.0.0)
+
+The five-tool surface is replaced by one read tool per document family, so each
+tool names the concrete documents it returns instead of "a standards document".
+The `core/` directory is gone: `guardrails.md`, `git.md` and `glossary.md` move
+to the project root, and `definition-of-done.md` moves under `gates/`.
+
+- **New read tools:** `playbook_get_agents` (AGENTS.md + ARCHITECTURE.md +
+  glossary), `playbook_get_guardrails` (guardrails + git), `playbook_get_standards`
+  (a language's rules; `language` is required), `playbook_get_patterns`,
+  `playbook_get_workflow` (matches an `intent`, or fetches by `name`), and
+  `playbook_get_gates` (definition of done + verify scripts).
+  `playbook_find_standards`, `playbook_list_templates` and
+  `playbook_scaffold_standards` are unchanged.
+- **Removed** `playbook_start_task` (its intent matching is now
+  `playbook_get_workflow(intent=…)`) and `playbook_get_standard` (the `ref`
+  grammar - each getter addresses its own family).
+- **Removed the `core/` grouping** across the templates, the composition engine,
+  the `ref`/Next-Calls routing, the dashboard grouping, the plugin hooks and the
+  seed.
+- **De-AI'd the generated framing:** the base `AGENTS.md` and the server
+  instructions no longer address an "AI agent" or open with "You are a senior
+  engineer".
+- The Claude Code plugin is bumped to **0.2.0**; its SessionStart and PreToolUse
+  hooks now read `guardrails.md` and `gates/definition-of-done.md`.
+  (Redmine #412)
+
+### Changed
+
+- **Default credentials are now admin/admin out of the box.** Removed the
+  startup guard that refused to boot on the literal admin/admin pair when
+  `MCP_HOST=0.0.0.0`, and made `MCP_ADMIN_PASSWORD` optional in
+  `docker-compose.yml` (defaults to `admin`, still overridable) so
+  `docker compose up -d` runs with no `.env`. The compose port stays published
+  on `127.0.0.1` only; set a strong `MCP_ADMIN_PASSWORD` before exposing it.
+  (Redmine #411)
 
 ### Added - dev-playbook plugin v0.1.0 - one command instead of a setup guide
 

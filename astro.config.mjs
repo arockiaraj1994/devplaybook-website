@@ -1,7 +1,7 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 
-const REPO = 'https://github.com/arockiaraj1994/dev-agent-playbook';
+const REPO = 'https://github.com/arockiaraj1994/dev-playbook';
 const SITE_REPO = 'https://github.com/arockiaraj1994/devplaybook-website';
 
 // Loaded once here and once in BaseLayout, so the landing page and the docs
@@ -51,13 +51,7 @@ export default defineConfig({
       logo: { src: './src/assets/logo.svg', replacesTitle: false },
       sidebar: [
         { label: 'Overview', slug: 'docs' },
-        { label: 'Getting started', items: [{ autogenerate: { directory: 'docs/start' } }] },
-        { label: 'The tools', items: [{ autogenerate: { directory: 'docs/tools' } }] },
-        { label: 'Concepts', items: [{ autogenerate: { directory: 'docs/concepts' } }] },
-        { label: 'Claude Code plugin', items: [{ autogenerate: { directory: 'docs/plugin' } }] },
-        { label: 'Template packs', items: [{ autogenerate: { directory: 'docs/templates' } }] },
-        { label: 'Self-hosting', items: [{ autogenerate: { directory: 'docs/self-host' } }] },
-        { label: 'Contributing', items: [{ autogenerate: { directory: 'docs/contribute' } }] },
+        { label: 'Get started', slug: 'docs/get-started' },
         { label: 'Changelog', slug: 'changelog' },
       ],
     }),
